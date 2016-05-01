@@ -14,31 +14,28 @@ class KubernetesClient(object):
         output = subprocess.check_output(['kubectl'] + cmd)
         return yaml.load(output)
 
+    def _namespace(self, ns):
+        return ['--namespace', ns] if ns != 'all' else ['--all-namespaces']
+
     def get_namespaces(self):
         payload = self._run_command('get ns -o yaml'.split())
         names = [ item['metadata']['name'] for item in payload['items']]
         return names
 
     def get_entities(self, ns, entity):
-        namespace = ['--namespace', ns] if ns != 'all' else ['--all-namespaces']
-        payload = self._run_command(['get', entity, '-o', 'yaml'] + namespace)
+        payload = self._run_command(['get', entity, '-o', 'yaml'] + self._namespace(ns))
         names = [ item['metadata']['name'] for item in payload['items']]
         return names
 
     def get_object_in_format(self, ns, entity_type, object, format):
-        namespace = ['--namespace', ns] if ns != 'all' else ['--all-namespaces']
-        payload = subprocess.check_output(['kubectl', 'get', entity_type, object, '-o', format] + namespace)
+        payload = subprocess.check_output(['kubectl', 'get', entity_type, object, '-o', format] + self._namespace(ns))
         return payload
 
     def describe(self, ns, entity_type, object):
-        namespace = ['--namespace', ns] if ns != 'all' else ['--all-namespaces']
-        payload = subprocess.check_output(['kubectl', 'describe', entity_type, object] + namespace)
-        return payload
+        return subprocess.check_output(['kubectl', 'describe', entity_type, object] + self._namespace(ns))
 
     def logs(self, ns, object):
-        namespace = ['--namespace', ns] if ns != 'all' else ['--all-namespaces']
-        payload = subprocess.check_output(['kubectl', 'logs', object] + namespace)
-        return payload
+        return subprocess.check_output(['kubectl', 'logs', object] + self._namespace(ns))
 
 
 class KubePath(object):
