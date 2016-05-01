@@ -52,7 +52,6 @@ class KubePath(object):
         self.resource_type = parts[1] if len(parts) > 1 else None
         self.object_id = parts[2] if len(parts) > 2 else None
         self.action = parts[3] if len(parts) > 3 else None
-        print self
         return self
 
     def __repr__(self):
@@ -112,9 +111,10 @@ class KubeFileSystem(object):
 
 class KubeFuse(LoggingMixIn, Operations):
 
-    def __init__(self):
+    def __init__(self, mount):
         self.client = KubernetesClient()
         self.fd = 0
+	print "Mounted on", mount
 
     def readdir(self, path, fh):
         return KubeFileSystem(KubePath().parse_path(path)).list_files(self.client)
@@ -135,5 +135,5 @@ if __name__ == '__main__':
         print('usage: %s <mountpoint>' % sys.argv[0])
         exit(1)
 
-    logging.basicConfig(level=logging.DEBUG)
-    fuse = FUSE(KubeFuse(), sys.argv[1], foreground=True)
+    logging.basicConfig(level=logging.INFO)
+    fuse = FUSE(KubeFuse(sys.argv[1]), sys.argv[1], foreground=True)
