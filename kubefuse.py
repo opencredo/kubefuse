@@ -4,8 +4,9 @@ import logging
 import sys
 import subprocess
 import yaml
+import os
 from time import time
-from stat import S_IFDIR, S_IFLNK, S_IFREG
+from stat import S_IFDIR, S_IFLNK, S_IFREG, S_IFIFO
 from fuse import FUSE, FuseOSError, Operations, LoggingMixIn
 
 class KubernetesClient(object):
@@ -19,10 +20,16 @@ class KubernetesClient(object):
         return names
 
     def get_entities(self, ns, entity):
-    	namespace = ['--namespace', ns] if ns != 'all' else ['--all-namespaces']
+        namespace = ['--namespace', ns] if ns != 'all' else ['--all-namespaces']
         payload = self._run_command(['get', entity, '-o', 'yaml'] + namespace)
         names = [ item['metadata']['name'] for item in payload['items']]
         return names
+
+    def get_object_in_format(self, ns, entity_type, object, format):
+        namespace = ['--namespace', ns] if ns != 'all' else ['--all-namespaces']
+        payload = subprocess.check_output(['kubectl', 'get', entity_type, object, '-o', format] + namespace)
+        return payload
+
 
 class KubePathBuilder(object):
     def __init__(self, namespace = None, resource_type = None, object_id = None, action = None):
@@ -64,13 +71,13 @@ class KubePathBuilder(object):
         return " ".join(result)
         
     def _stat_dir(self):
-        return dict(st_mode=(S_IFDIR), st_nlink=2,
+        return dict(st_mode=(S_IFDIR | 0555), st_nlink=2,
                 st_size=0, st_ctime=time(), st_mtime=time(),
                 st_atime=time())
 
     def _stat_file(self):
-        return dict(st_mode=(S_IFREG), st_nlink=1,
-                st_size=0, st_ctime=time(), st_mtime=time(),
+        return dict(st_mode=(S_IFREG | 0444), st_nlink=1,
+                st_size=50000, st_ctime=time(), st_mtime=time(),
                 st_atime=time())
 
     def getattr(self, client):
@@ -78,16 +85,36 @@ class KubePathBuilder(object):
             return self._stat_file()
         return self._stat_dir()
 
+    def read(self, client, size, offset):
+        if self.action is None:
+            raise FuseOSError(errno.ENOENT)
+
+        data = ''
+        if self.action in ['describe', 'logs']:
+            pass
+        if self.action in ['json', 'yaml']:
+            data = client.get_object_in_format(self.namespace, self.resource_type, self.object_id, self.action)
+            data = data[offset:size + 1]
+        return data
+
 class KubeFuse(LoggingMixIn, Operations):
 
     def __init__(self):
         self.client = KubernetesClient()
+        self.fd = 0
 
     def readdir(self, path, fh):
         return KubePathBuilder().parse_path(path).list_files(self.client)
 
     def getattr(self, path, fh=None):
         return KubePathBuilder().parse_path(path).getattr(self.client)
+
+    def open(self, path, flags):
+        self.fd += 1
+        return self.fd
+
+    def read(self, path, size, offset, fh):
+        return KubePathBuilder().parse_path(path).read(self.client, size, offset)
 
 
 if __name__ == '__main__':
