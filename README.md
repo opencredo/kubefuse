@@ -18,6 +18,7 @@ Alpha quality software for quick Kubernetes browsing. What's not to love.
 * ...with (some of) your favourite tools: `ls`, `find`, `cat`, ...
 * List services, replication controllers, pods and namespaces
 * Export resources to YAML and JSON
+* Access resource descriptions as files (eg. `cat ~/kubernetes/default/pod/postgres-aazm1/describe`)
 * And that's it, but more may be coming. 
 
 ## Requirements
@@ -59,13 +60,25 @@ List all known objects:
 find ~/kubernetes/all/ -type d
 ```
 
-Export the `kubernetes` replication controller to YAML:
+Describe the `postgres` pod:
+
+```
+cat ~/kubernetes/default/pod/postgres-aazm1/describe
+```
+
+Get logs from a `graphite` pod:
+
+```
+cat ~/kubernetes/default/pod/graphite-i3bb2/logs
+```
+
+Export the `postgres` replication controller to YAML:
 
 ```
 cat ~/kubernetes/default/rc/postgres/yaml
 ```
 
-Export the `kubernetes` replication controller to JSON:
+Export the `postgres` replication controller to JSON:
 
 ```
 cat ~/kubernetes/default/rc/postgres/json
