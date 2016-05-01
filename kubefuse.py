@@ -32,10 +32,10 @@ class KubernetesClient(object):
         return payload
 
     def describe(self, ns, entity_type, object):
-        return subprocess.check_output(['kubectl', 'describe', entity_type, object])
+        return subprocess.check_output(['kubectl', 'describe', entity_type, object] + self._namespace(ns))
 
     def logs(self, ns, object):
-        return subprocess.check_output(['kubectl', 'logs', object])
+        return subprocess.check_output(['kubectl', 'logs', object] + self._namespace(ns))
 
 
 class KubePath(object):
