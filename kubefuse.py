@@ -19,7 +19,8 @@ class KubernetesClient(object):
         return names
 
     def get_entities(self, ns, entity):
-        payload = self._run_command(['get', entity, '-o', 'yaml', '--namespace', ns])
+    	namespace = ['--namespace', ns] if ns != 'all' else ['--all-namespaces']
+        payload = self._run_command(['get', entity, '-o', 'yaml'] + namespace)
         names = [ item['metadata']['name'] for item in payload['items']]
         return names
 
@@ -79,9 +80,8 @@ class KubePathBuilder(object):
 
 class KubeFuse(LoggingMixIn, Operations):
 
-    def __init__(self, kubeconfig, context):
+    def __init__(self):
         self.client = KubernetesClient()
-        self.path_builder = KubePathBuilder()
 
     def readdir(self, path, fh):
         return KubePathBuilder().parse_path(path).list_files(self.client)
@@ -91,9 +91,9 @@ class KubeFuse(LoggingMixIn, Operations):
 
 
 if __name__ == '__main__':
-    if len(sys.argv) != 4:
-        print('usage: %s <mountpoint> <kubeconfig> <context>' % sys.argv[0])
+    if len(sys.argv) != 2:
+        print('usage: %s <mountpoint>' % sys.argv[0])
         exit(1)
 
     logging.basicConfig(level=logging.DEBUG)
-    fuse = FUSE(KubeFuse(sys.argv[2], sys.argv[3]), sys.argv[1], foreground=True)
+    fuse = FUSE(KubeFuse(), sys.argv[1], foreground=True)
