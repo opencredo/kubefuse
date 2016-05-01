@@ -54,10 +54,10 @@ List all pods in the default namespace:
 ls ~/kubernetes/default/pod/
 ```
 
-List all known objects:
+List all known objects in the default namespace:
 
 ```
-find ~/kubernetes/all/ -type d
+find ~/kubernetes/default -type d -mindepth 2
 ```
 
 Describe the `postgres` pod:
@@ -84,6 +84,11 @@ Export the `postgres` replication controller to JSON:
 cat ~/kubernetes/default/rc/postgres/json
 ```
 
+Export all service definitions in the default namespace:
+
+```
+find ~/kubernetes/default/svc -name yaml | while read line ; do cat $line ; echo "----" ; echo ; done
+```
 
 Bugs
 ====

@@ -32,10 +32,10 @@ class KubernetesClient(object):
         return payload
 
     def describe(self, ns, entity_type, object):
-        return subprocess.check_output(['kubectl', 'describe', entity_type, object] + self._namespace(ns))
+        return subprocess.check_output(['kubectl', 'describe', entity_type, object])
 
     def logs(self, ns, object):
-        return subprocess.check_output(['kubectl', 'logs', object] + self._namespace(ns))
+        return subprocess.check_output(['kubectl', 'logs', object])
 
 
 class KubePath(object):
@@ -88,7 +88,7 @@ class KubeFileSystem(object):
             return client.get_entities(self.path.namespace, self.path.resource_type)
         if self.path.namespace is not None:
             return ['svc', 'pod', 'rc']
-        return client.get_namespaces() + ['all']
+        return client.get_namespaces() # + ['all']
 
     def getattr(self, client):
         if self.path.action is not None:
