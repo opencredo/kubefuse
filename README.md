@@ -14,16 +14,17 @@ Alpha quality software for quick Kubernetes browsing. What's not to love.
 
 ## Features
 
-* Browse Kubernetes resources in your file system
+* Browse Kubernetes resources in your file system...
+* ...with (some of) your favourite tools: `ls`, `find`, `cat`, ...
 * List services, replication controllers, pods and namespaces
-* Works with `ls` and `find`
-* That's it, but more stuff is planned.
+* Export resources to YAML and JSON
+* And that's it, but more may be coming. 
 
 ## Requirements
 
-Kubefuse runs on both Linux and Mac, but does require additional libraries to be installed (eg. OSXFUSE).
+KubeFuse runs on both Linux and Mac, but does require additional libraries to be installed (eg. OSXFUSE).
 
-Kubefuse also uses the kubectl binary under the hood so this needs to be on the path. 
+KubeFuse also uses the kubectl binary under the hood so this needs to be on the path. 
 
 ## Setup
 
@@ -56,4 +57,16 @@ List all known objects:
 
 ```
 find ~/kubernetes/all/ -type d
+```
+
+Export the `kubernetes` replication controller to YAML:
+
+```
+cat ~/kubernetes/default/rc/postgres/yaml
+```
+
+Export the `kubernetes` replication controller to JSON:
+
+```
+cat ~/kubernetes/default/rc/postgres/json
 ```
