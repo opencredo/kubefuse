@@ -83,3 +83,9 @@ Export the `postgres` replication controller to JSON:
 ```
 cat ~/kubernetes/default/rc/postgres/json
 ```
+
+
+Bugs
+====
+
+Yes.
