@@ -2,81 +2,14 @@
 
 import logging
 import sys
-import subprocess
-import yaml
 import os
+import errno
 from time import time
 from stat import S_IFDIR, S_IFLNK, S_IFREG, S_IFIFO
 from fuse import FUSE, FuseOSError, Operations, LoggingMixIn
 
-class ExpiringCache(object):
-    def __init__(self, expire_in_seconds):
-        self._cache = {}
-        self._timestamps = {}
-        self.EXPIRE_IN_SECONDS = expire_in_seconds
-
-    def set(self, key, value):
-        t = time() + self.EXPIRE_IN_SECONDS
-        self._cache[key] = value
-        self._timestamps[key] = t
-        logging.info("Add key '%s' to cache (expires %d)" % (key, t))
-
-    def get(self, key):
-        if key not in self._timestamps:
-            return None
-        now = time()
-        expires_at = self._timestamps[key]
-        if now <= expires_at:
-            logging.info("Retrieved '%s' from cache" % key)
-            return self._cache[key]
-        del(self._timestamps[key])
-        del(self._cache[key])
-        return None
-
-class KubernetesClient(object):
-    def __init__(self):
-        self._cache = ExpiringCache(30)
-
-    def _run_command(self, cmd):
-        output = subprocess.check_output(['kubectl'] + cmd)
-        return yaml.load(output)
-
-    def _namespace(self, ns):
-        return ['--namespace', ns] if ns != 'all' else ['--all-namespaces']
-
-    def _load_from_cache_or_do(self, key, func):
-        cached = self._cache.get(key)
-        if cached is not None:
-            return cached
-        result = func()
-        self._cache.set(key, result)
-        return result
-        
-    def get_namespaces(self):
-        return self._load_from_cache_or_do("namespaces", self._get_namespaces)
-
-    def _get_namespaces(self):
-        payload = self._run_command('get ns -o yaml'.split())
-        names = [ item['metadata']['name'] for item in payload['items']]
-        return names
-
-    def get_entities(self, ns, entity):
-        return self._load_from_cache_or_do(ns + "-" + entity, lambda: self._get_entities(ns,entity))
-
-    def _get_entities(self, ns, entity):
-        payload = self._run_command(['get', entity, '-o', 'yaml'] + self._namespace(ns))
-        names = [ item['metadata']['name'] for item in payload['items']]
-        return names
-
-    def get_object_in_format(self, ns, entity_type, object, format):
-        payload = subprocess.check_output(['kubectl', 'get', entity_type, object, '-o', format] + self._namespace(ns))
-        return payload
-
-    def describe(self, ns, entity_type, object):
-        return subprocess.check_output(['kubectl', 'describe', entity_type, object] + self._namespace(ns))
-
-    def logs(self, ns, object):
-        return subprocess.check_output(['kubectl', 'logs', object] + self._namespace(ns))
+from cache import ExpiringCache
+from client import KubernetesClient
 
 
 class KubePath(object):
@@ -122,6 +55,17 @@ class KubeFileSystem(object):
                 st_size=50000, st_ctime=time(), st_mtime=time(),
                 st_atime=time())
 
+    def path_exists(self, client):
+        if self.path.namespace is None:
+            return True
+        namespaces = client.get_namespaces()
+        if self.path.namespace not in namespaces:
+            return False
+        if self.path.resource_type is None:
+            return True
+        return False
+
+
     def list_files(self, client):
         if self.path.object_id is not None:
             return ['describe', 'logs', 'json', 'yaml']
@@ -132,6 +76,9 @@ class KubeFileSystem(object):
         return client.get_namespaces() # + ['all']
 
     def getattr(self, client):
+        if not self.path_exists(client):
+            logging.info("path doesn't exist")
+            raise FuseOSError(errno.ENOENT)
         if self.path.action is not None:
             return self._stat_file()
         return self._stat_dir()
