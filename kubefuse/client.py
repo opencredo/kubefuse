@@ -1,6 +1,8 @@
 import subprocess
 import yaml
 
+from cache import ExpiringCache
+
 class KubernetesClient(object):
     def __init__(self):
         self._cache = ExpiringCache(30)
