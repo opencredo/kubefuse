@@ -1,5 +1,7 @@
 from hamcrest import *
 from myna import shim
+import yaml
+import json
 import unittest
 
 from kubefuse.client import KubernetesClient
@@ -12,9 +14,7 @@ def setUp():
 
 def tearDown():
     global tmpdir
-    if tmpdir is not None:
-        shim.teardown_shim_dir(tmpdir)
-        tmpdir = None
+    shim.teardown_shim_dir(tmpdir)
 
 class KubernetesClientTest(unittest.TestCase):
     def test_get_namespaces(self):
@@ -24,11 +24,43 @@ class KubernetesClientTest(unittest.TestCase):
         assert_that(namespaces, has_item('kube-system'))
         assert_that(len(namespaces), is_(2))
 
-    def test_get_entities(self):
-        pass
-    def test_get_object_in_format(self):
-        pass
+    def test_get_pods(self):
+        client = KubernetesClient()
+        pods = client.get_pods('default')
+        assert_that(len(pods), is_(3))
+
+    def test_get_services(self):
+        client = KubernetesClient()
+        svc = client.get_services('default')
+        assert_that(len(svc), is_(4))
+
+    def test_get_replication_controllers(self):
+        client = KubernetesClient()
+        rc = client.get_replication_controllers('default')
+        assert_that(len(rc), is_(3))
+
+    def test_get_object_in_yaml_format(self):
+        client = KubernetesClient()
+        pods = client.get_pods("default")
+        pod = client.get_object_in_format('default', 'pod', pods[0], 'yaml')
+        result = yaml.load(pod)
+        assert_that(result['metadata']['name'], is_(pods[0]))
+
+    def test_get_object_in_json_format(self):
+        client = KubernetesClient()
+        pods = client.get_pods("default")
+        pod = client.get_object_in_format('default', 'pod', pods[0], 'json')
+        result = json.loads(pod)
+        assert_that(result['metadata']['name'], is_(pods[0]))
+
     def test_describe(self):
-        pass
+        client = KubernetesClient()
+        pods = client.get_pods("default")
+        describe = client.describe('default', 'pod', pods[0])
+        assert_that(describe, contains_string(pods[0]))
+
     def test_logs(self):
-        pass
+        client = KubernetesClient()
+        pods = client.get_pods("default")
+        describe = client.logs('default', pods[0])
+        assert_that(describe, contains_string(pods[0]))
