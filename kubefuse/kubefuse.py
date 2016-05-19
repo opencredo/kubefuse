@@ -10,36 +10,9 @@ from fuse import FUSE, FuseOSError, Operations, LoggingMixIn
 
 from cache import ExpiringCache
 from client import KubernetesClient
+from path import KubePath
 
 
-class KubePath(object):
-    def __init__(self, namespace = None, resource_type = None, object_id = None, action = None):
-        self.namespace = namespace 
-        self.resource_type = resource_type
-        self.object_id = object_id
-        self.action = None
-
-    def parse_path(self, path):
-        if path == '/': return self
-        parts = path[1:].split("/")
-        self.namespace = parts[0] if len(parts) > 0 else None
-        self.resource_type = parts[1] if len(parts) > 1 else None
-        self.object_id = parts[2] if len(parts) > 2 else None
-        self.action = parts[3] if len(parts) > 3 else None
-        return self
-
-    def __repr__(self):
-        result = ['<']
-        if self.action is not None:
-            result.append("action %s on" % self.action)
-        if self.object_id is not None:
-            result.append('object %s' % self.object_id)
-        if self.resource_type is not None:
-            result.append("of type %s" % self.resource_type)
-        if self.namespace is not None:
-            result.append('in namespace %s' % self.namespace)
-        result.append('>')
-        return " ".join(result)
         
 class KubeFileSystem(object):
     def __init__(self, path):
@@ -55,28 +28,17 @@ class KubeFileSystem(object):
                 st_size=50000, st_ctime=time(), st_mtime=time(),
                 st_atime=time())
 
-    def path_exists(self, client):
-        if self.path.namespace is None:
-            return True
-        namespaces = client.get_namespaces()
-        if self.path.namespace not in namespaces:
-            return False
-        if self.path.resource_type is None:
-            return True
-        return False
-
-
     def list_files(self, client):
         if self.path.object_id is not None:
-            return ['describe', 'logs', 'json', 'yaml']
+            return self.path.SUPPORTED_ACTIONS
         if self.path.resource_type is not None:
             return client.get_entities(self.path.namespace, self.path.resource_type)
         if self.path.namespace is not None:
-            return ['svc', 'pod', 'rc']
+            return self.path.SUPPORTED_RESOURCE_TYPES
         return client.get_namespaces() # + ['all']
 
     def getattr(self, client):
-        if not self.path_exists(client):
+        if not self.path.exists(client):
             logging.info("path doesn't exist")
             raise FuseOSError(errno.ENOENT)
         if self.path.action is not None:
