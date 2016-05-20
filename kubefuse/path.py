@@ -6,7 +6,8 @@ class KubePath(object):
         self.object_id = object_id
         self.action = None
         self.SUPPORTED_RESOURCE_TYPES = ['pod', 'svc', 'rc']
-        self.SUPPORTED_ACTIONS = ['logs', 'describe', 'json', 'yaml']
+        self.SUPPORTED_ACTIONS = ['describe', 'json', 'yaml']
+        self.SUPPORTED_POD_ACTIONS = ['logs'] + self.SUPPORTED_ACTIONS
 
     def parse_path(self, path):
         if path == '/': return self
@@ -33,6 +34,8 @@ class KubePath(object):
         if self.object_id not in entities:
             return False
         if self.action is None:
+            return True
+        if self.resource_type == 'pod' and self.action in self.SUPPORTED_POD_ACTIONS:
             return True
         if self.action not in self.SUPPORTED_ACTIONS:
             return False

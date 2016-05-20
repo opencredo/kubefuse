@@ -82,7 +82,7 @@ class KubeFileSystemTest(unittest.TestCase):
         assert_that(files, contains(*pods))
         assert_that(len(files), is_(len(pods)))
 
-    def test_list_files_for_object(self):
+    def test_list_files_for_pod(self):
         client = KubernetesClient()
         pod = client.get_pods()[0]
         path = KubePath().parse_path('/default/pod/%s' % pod)
@@ -90,6 +90,15 @@ class KubeFileSystemTest(unittest.TestCase):
         files = fs.list_files(client)
         assert_that(files, has_items('describe', 'logs', 'json', 'yaml'))
         assert_that(len(files), is_(4))
+
+    def test_list_files_for_rc(self):
+        client = KubernetesClient()
+        rc = client.get_replication_controllers()[0]
+        path = KubePath().parse_path('/default/rc/%s' % rc)
+        fs = KubeFileSystem(path)
+        files = fs.list_files(client)
+        assert_that(files, has_items('describe', 'json', 'yaml'))
+        assert_that(len(files), is_(3))
 
     def test_list_files_for_file_throws_exception(self):
         client = KubernetesClient()

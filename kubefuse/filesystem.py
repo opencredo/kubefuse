@@ -30,8 +30,11 @@ class KubeFileSystem(object):
         if not self._is_dir():
             logging.info("not a file")
             raise FuseOSError(errno.ENOTDIR)
-        if self.path.object_id is not None:
-            return self.path.SUPPORTED_ACTIONS
+        if self.path.object_id is not None: 
+            if self.path.resource_type != 'pod':
+                return self.path.SUPPORTED_ACTIONS
+            else:
+                return self.path.SUPPORTED_POD_ACTIONS
         if self.path.resource_type is not None:
             return client.get_entities(self.path.namespace, self.path.resource_type)
         if self.path.namespace is not None:
