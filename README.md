@@ -1,6 +1,8 @@
 KubeFuse
 ========
 
+![KubeFuse](logo.png)
+
 Kubernetes as a Filesystem
 
 
