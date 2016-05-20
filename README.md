@@ -27,16 +27,40 @@ KubeFuse runs on both Linux and Mac, but does require additional libraries to be
 
 KubeFuse also uses the kubectl binary under the hood so this needs to be on the path. 
 
-## Setup
+## Setup and Usage
+
+### Getting the latest release
+
+You should be able to:
+
+```
+pip install kubefuse
+```
+
+After which the kubefuse command will be installed into a `bin/` directory that
+is hopefully already on your path (if not look for the line starting with
+`Installing kubefuse script to ....` and add that directory to your PATH and
+restart your shell). 
+
+You should then be able to run:
+
+```
+kubefuse [MOUNTPOINT]
+```
+
+### From Source
+
+When "building" from source:
 
 ```
 pip install -r requirements.txt
 ```
 
-## Usage
+Will install all the dependencies (on fresh systems you may need to
+`easy_install pip` first). After which you can run KubeFuse with:
 
 ```
-python kubefuse.py [MOUNTPOINT] 
+python kubefuse/kubefuse.py [MOUNTPOINT] 
 ```
 
 Examples
