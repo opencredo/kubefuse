@@ -1,5 +1,4 @@
 from hamcrest import *
-from myna import shim
 import stat
 import unittest
 from fuse import FuseOSError
@@ -7,16 +6,6 @@ from fuse import FuseOSError
 from kubefuse.client import KubernetesClient
 from kubefuse.path import KubePath
 from kubefuse.filesystem import KubeFileSystem
-
-tmpdir = None
-
-def setUp():
-    global tmpdir
-    tmpdir = shim.setup_shim_for('kubectl')	
-
-def tearDown():
-    global tmpdir
-    shim.teardown_shim_dir(tmpdir)
 
 class KubeFileSystemTest(unittest.TestCase):
     def test_getattr_for_namespace(self):

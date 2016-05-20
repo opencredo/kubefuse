@@ -1,20 +1,8 @@
 from hamcrest import *
-from myna import shim
 import unittest
 
 from kubefuse.client import KubernetesClient
 from kubefuse.path import KubePath
-
-tmpdir = None
-
-def setUp():
-    global tmpdir
-    tmpdir = shim.setup_shim_for('kubectl')	
-
-def tearDown():
-    global tmpdir
-    shim.teardown_shim_dir(tmpdir)
-
 
 class KubePathTest(unittest.TestCase):
     def test_parse_path_namespace(self):

@@ -1,20 +1,9 @@
 from hamcrest import *
-from myna import shim
 import yaml
 import json
 import unittest
 
 from kubefuse.client import KubernetesClient
-
-tmpdir = None
-
-def setUp():
-    global tmpdir
-    tmpdir = shim.setup_shim_for('kubectl')	
-
-def tearDown():
-    global tmpdir
-    shim.teardown_shim_dir(tmpdir)
 
 class KubernetesClientTest(unittest.TestCase):
     def test_get_namespaces(self):

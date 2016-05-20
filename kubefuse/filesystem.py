@@ -20,6 +20,8 @@ class KubeFileSystem(object):
 
     def _is_dir(self):
         return self.path.action is None
+    def _is_file(self):
+        return not(self._is_dir())
 
     def list_files(self, client):
         if not self.path.exists(client):
