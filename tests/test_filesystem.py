@@ -115,3 +115,34 @@ class KubeFileSystemTest(unittest.TestCase):
         fs = KubeFileSystem(path)
         assert_that(calling(lambda: fs.list_files(client)), raises(FuseOSError))
 
+    def test_read_describe(self):
+        client = KubernetesClient()
+        pod = client.get_pods()[0]
+        path = KubePath().parse_path('/default/pod/%s/describe' % pod)
+        fs = KubeFileSystem(path)
+        data = fs.read(client, 50000, 0)
+        assert_that(data, equal_to(client.describe('default', 'pod', pod)))
+
+    def test_read_logs(self):
+        client = KubernetesClient()
+        pod = client.get_pods()[0]
+        path = KubePath().parse_path('/default/pod/%s/logs' % pod)
+        fs = KubeFileSystem(path)
+        data = fs.read(client, 50000, 0)
+        assert_that(data, equal_to(client.logs('default', pod)))
+
+    def test_read_json(self):
+        client = KubernetesClient()
+        pod = client.get_pods()[0]
+        path = KubePath().parse_path('/default/pod/%s/json' % pod)
+        fs = KubeFileSystem(path)
+        data = fs.read(client, 50000, 0)
+        assert_that(data, equal_to(client.get_object_in_format('default', 'pod', pod, 'json')))
+
+    def test_read_yaml(self):
+        client = KubernetesClient()
+        pod = client.get_pods()[0]
+        path = KubePath().parse_path('/default/pod/%s/yaml' % pod)
+        fs = KubeFileSystem(path)
+        data = fs.read(client, 50000, 0)
+        assert_that(data, equal_to(client.get_object_in_format('default', 'pod', pod, 'yaml')))
