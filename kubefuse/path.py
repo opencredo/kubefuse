@@ -47,6 +47,15 @@ class KubePath(object):
             return False
         return True
 
+    def do_action(self, client):
+        ns, rt, oid = self.namespace, self.resource_type, self.object_id
+        if self.action == 'describe':
+            return client.describe(ns, rt, oid)
+        if self.action == 'logs':
+            return client.logs(ns, oid)
+        if self.action in ['json', 'yaml']:
+            return client.get_object_in_format(ns, rt, oid, self.action)
+
     def __repr__(self):
         result = ['<']
         if self.action is not None:

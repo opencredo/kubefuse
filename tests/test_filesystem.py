@@ -43,10 +43,38 @@ class KubeFileSystemTest(unittest.TestCase):
         fs = KubeFileSystem(client)
         path = KubePath().parse_path('/default/pod/%s/describe' % pod)
         attr = fs.getattr(path)
+        data = client.describe('default', 'pod', pod)
         assert_that(attr['st_mode'], is_(stat.S_IFREG | 0444))
         assert_that(attr['st_nlink'], is_(1))
-        assert_that(attr['st_size'], is_(50000))
+        assert_that(attr['st_size'], is_(len(data)))
         # NB. time not tested, but whatever
+
+    def test_getattr_size_for_json_action(self):
+        client = KubernetesClient()
+        pod = client.get_pods()[0]
+        fs = KubeFileSystem(client)
+        path = KubePath().parse_path('/default/pod/%s/json' % pod)
+        attr = fs.getattr(path)
+        data = client.get_object_in_format('default', 'pod', pod, 'json')
+        assert_that(attr['st_size'], is_(len(data)))
+
+    def test_getattr_size_for_yaml_action(self):
+        client = KubernetesClient()
+        pod = client.get_pods()[0]
+        fs = KubeFileSystem(client)
+        path = KubePath().parse_path('/default/pod/%s/yaml' % pod)
+        attr = fs.getattr(path)
+        data = client.get_object_in_format('default', 'pod', pod, 'yaml')
+        assert_that(attr['st_size'], is_(len(data)))
+
+    def test_getattr_size_for_describe_action(self):
+        client = KubernetesClient()
+        pod = client.get_pods()[0]
+        fs = KubeFileSystem(client)
+        path = KubePath().parse_path('/default/pod/%s/logs' % pod)
+        attr = fs.getattr(path)
+        data = client.logs('default', pod)
+        assert_that(attr['st_size'], is_(len(data)))
 
     def test_getattr_for_nonexistent_path(self):
         client = KubernetesClient()

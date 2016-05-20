@@ -13,10 +13,12 @@ class KubeFileSystem(object):
                 st_size=0, st_ctime=time(), st_mtime=time(),
                 st_atime=time())
 
-    def _stat_file(self):
+    def _stat_file(self, client, path):
+        data = path.do_action(client)
+        now = time()
         return dict(st_mode=(S_IFREG | 0444), st_nlink=1,
-                st_size=50000, st_ctime=time(), st_mtime=time(),
-                st_atime=time())
+                st_size=len(data), st_ctime=now, st_mtime=now,
+                st_atime=now)
 
     def list_files(self, path):
         if not path.exists(self.client):
@@ -41,20 +43,12 @@ class KubeFileSystem(object):
             logging.info("path doesn't exist")
             raise FuseOSError(errno.ENOENT)
         if path.action is not None:
-            return self._stat_file()
+            return self._stat_file(self.client, path)
         return self._stat_dir()
 
     def read(self, path, size, offset):
         if not path.is_file():
             raise FuseOSError(errno.ENOENT)
-        data = ''
-        if path.action == 'describe':
-            data = self.client.describe(path.namespace,
-                    path.resource_type, path.object_id)
-        if path.action == 'logs':
-            data = self.client.logs(path.namespace, path.object_id)
-        if path.action in ['json', 'yaml']:
-            data = self.client.get_object_in_format(path.namespace,
-                    path.resource_type, path.object_id, path.action)
+        data = path.do_action(self.client)
         return data[offset:size + 1]
 
