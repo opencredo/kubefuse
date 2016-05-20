@@ -70,8 +70,9 @@ class KubeFileSystemTest(unittest.TestCase):
         path = KubePath().parse_path('/default')
         fs = KubeFileSystem(path)
         files = fs.list_files(client)
-        assert_that(files, contains('pod', 'svc', 'rc'))
-        assert_that(len(files), is_(3))
+        assert_that(files, contains('pod', 'svc', 'rc', 'nodes', 'events',
+            'cs', 'limits', 'pv', 'pvc', 'quota', 'endpoints', 'serviceaccounts',
+            'secrets'))
 
     def test_list_files_for_resource(self):
         client = KubernetesClient()
@@ -80,7 +81,6 @@ class KubeFileSystemTest(unittest.TestCase):
         files = fs.list_files(client)
         pods = client.get_pods()
         assert_that(files, contains(*pods))
-        assert_that(len(files), is_(len(pods)))
 
     def test_list_files_for_pod(self):
         client = KubernetesClient()

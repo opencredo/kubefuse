@@ -5,7 +5,7 @@ class KubePath(object):
         self.resource_type = resource_type
         self.object_id = object_id
         self.action = None
-        self.SUPPORTED_RESOURCE_TYPES = ['pod', 'svc', 'rc']
+        self.SUPPORTED_RESOURCE_TYPES = ['pod', 'svc', 'rc', 'nodes', 'events', 'cs', 'limits', 'pv', 'pvc', 'quota', 'endpoints', 'serviceaccounts', 'secrets']
         self.SUPPORTED_ACTIONS = ['describe', 'json', 'yaml']
         self.SUPPORTED_POD_ACTIONS = ['logs'] + self.SUPPORTED_ACTIONS
 
