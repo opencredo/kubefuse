@@ -18,7 +18,7 @@ Beta quality software for quick Kubernetes browsing. What's not to love.
 
 * Browse Kubernetes resources in your file system...
 * ...with (some of) your favourite tools: `ls`, `find`, `cat`, ...
-* List services, replication controllers, pods and namespaces
+* List all your favourite resources such as: services, replication controllers, pods and namespaces
 * Export resources to YAML and JSON
 * Access resource descriptions as files (eg. `cat ~/kubernetes/default/pod/postgres-aazm1/describe`)
 * And that's it, but more may be coming. 
