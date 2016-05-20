@@ -1,5 +1,8 @@
 from stat import S_IFDIR, S_IFLNK, S_IFREG, S_IFIFO
 from time import time
+import logging
+import errno
+from fuse import FuseOSError
 
 class KubeFileSystem(object):
     def __init__(self, path):
@@ -15,7 +18,16 @@ class KubeFileSystem(object):
                 st_size=50000, st_ctime=time(), st_mtime=time(),
                 st_atime=time())
 
+    def _is_dir(self):
+        return self.path.action is None
+
     def list_files(self, client):
+        if not self.path.exists(client):
+            logging.info("path doesn't exist")
+            raise FuseOSError(errno.ENOENT)
+        if not self._is_dir():
+            logging.info("not a file")
+            raise FuseOSError(errno.ENOTDIR)
         if self.path.object_id is not None:
             return self.path.SUPPORTED_ACTIONS
         if self.path.resource_type is not None:
