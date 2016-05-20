@@ -16,7 +16,7 @@ class KubeFuse(LoggingMixIn, Operations):
     def __init__(self, mount):
         self.client = KubernetesClient()
         self.fd = 0
-	print "Mounted on", mount
+        print "Mounted on", mount
 
     def readdir(self, path, fh):
         return KubeFileSystem(KubePath().parse_path(path)).list_files(self.client)
@@ -31,11 +31,13 @@ class KubeFuse(LoggingMixIn, Operations):
     def read(self, path, size, offset, fh):
         return KubeFileSystem(KubePath().parse_path(path)).read(self.client, size, offset)
 
-
-if __name__ == '__main__':
+def main():
     if len(sys.argv) != 2:
         print('usage: %s <mountpoint>' % sys.argv[0])
         exit(1)
 
     logging.basicConfig(level=logging.INFO)
     fuse = FUSE(KubeFuse(sys.argv[1]), sys.argv[1], foreground=True)
+
+if __name__ == '__main__':
+    main()
