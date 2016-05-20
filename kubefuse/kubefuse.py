@@ -15,21 +15,22 @@ class KubeFuse(LoggingMixIn, Operations):
 
     def __init__(self, mount):
         self.client = KubernetesClient()
+        self.fs = KubeFileSystem(self.client)
         self.fd = 0
         print "Mounted on", mount
 
     def readdir(self, path, fh):
-        return KubeFileSystem(KubePath().parse_path(path)).list_files(self.client)
+        return self.fs.list_files(KubePath().parse_path(path))
 
     def getattr(self, path, fh=None):
-        return KubeFileSystem(KubePath().parse_path(path)).getattr(self.client)
+        return self.fs.getattr(KubePath().parse_path(path))
 
     def open(self, path, flags):
         self.fd += 1
         return self.fd
 
     def read(self, path, size, offset, fh):
-        return KubeFileSystem(KubePath().parse_path(path)).read(self.client, size, offset)
+        return self.fs.read(KubePath().parse_path(path), size, offset)
 
 def main():
     if len(sys.argv) != 2:

@@ -18,6 +18,12 @@ class KubePath(object):
         self.action = parts[3] if len(parts) > 3 else None
         return self
 
+    def is_dir(self):
+        return self.action is None
+
+    def is_file(self):
+        return not(self.is_dir())
+
     def exists(self, client):
         if self.namespace is None:
             return True
