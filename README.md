@@ -12,7 +12,7 @@ Because kubectl is great, but sometimes a bit slow to navigate.
 
 Enter KubeFuse.
 
-Alpha quality software for quick Kubernetes browsing. What's not to love.
+Beta quality software for quick Kubernetes browsing. What's not to love.
 
 ## Features
 
@@ -127,7 +127,3 @@ Export all service definitions in the default namespace:
 find ~/kubernetes/default/svc -name yaml | while read line ; do cat $line ; echo "----" ; echo ; done
 ```
 
-Bugs
-====
-
-Yes.
