@@ -63,6 +63,17 @@ Will install all the dependencies (on fresh systems you may need to
 python kubefuse/kubefuse.py [MOUNTPOINT] 
 ```
 
+
+## Tests 
+
+KubeFuse is extensively tested using a tool called
+[Myna](https://github.com/SpectoLabs/myna).  It also uses the `nose` framework
+to discover and orchestrate the tests. To run the tests install Myna and then:
+
+```
+make test
+```
+
 Examples
 ========
 
