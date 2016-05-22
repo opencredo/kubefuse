@@ -32,6 +32,21 @@ class KubeFuse(LoggingMixIn, Operations):
     def read(self, path, size, offset, fh):
         return self.fs.read(KubePath().parse_path(path), size, offset)
 
+    def truncate(self, path, length, fh=None):
+        return 
+
+    def write(self, path, buf, offset, fh):
+        logging.info("written %s" % buf)
+        return len(buf)
+
+    def flush(self, path, fh):
+        logging.info("FLUSHED " + path)
+        return 0
+
+    def release(self, path, fh):
+        logging.info("CLOSED " + path)
+        return 0
+
 def main():
     if len(sys.argv) != 2:
         print('usage: %s <mountpoint>' % sys.argv[0])

@@ -1,3 +1,5 @@
+import json
+from datetime import datetime
 
 class KubePath(object):
     def __init__(self, namespace = None, resource_type = None, object_id = None, action = None):
@@ -17,6 +19,22 @@ class KubePath(object):
         self.object_id = parts[2] if len(parts) > 2 else None
         self.action = parts[3] if len(parts) > 3 else None
         return self
+
+    def get_creation_date_for_action_file(self, client):
+        if self.action not in ['json', 'yaml', 'describe']:
+            return None
+        metadata = client.get_object_in_format(
+            self.namespace, self.resource_type,
+            self.object_id, 'json')
+        json_data = json.loads(metadata)
+        ts = None
+        if 'metadata' in json_data:
+            if 'creationTimestamp' in json_data['metadata']:
+                timestamp = json_data['metadata']['creationTimestamp']
+                if timestamp is not None:
+                    ts = datetime.strptime(timestamp, "%Y-%m-%dT%H:%M:%SZ")
+                    ts = int(ts.strftime("%s"))
+        return ts
 
     def is_dir(self):
         return self.action is None
