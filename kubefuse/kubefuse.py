@@ -23,28 +23,33 @@ class KubeFuse(LoggingMixIn, Operations):
         return self.fs.list_files(KubePath().parse_path(path))
 
     def getattr(self, path, fh=None):
-        return self.fs.getattr(KubePath().parse_path(path))
+        return self.fs.getattr(path)
 
     def open(self, path, flags):
         self.fd += 1
+        self.fs.open(path)
         return self.fd
 
     def read(self, path, size, offset, fh):
         return self.fs.read(KubePath().parse_path(path), size, offset)
 
     def truncate(self, path, length, fh=None):
-        return 
+        logging.info("TRUNCATED")
+        self.fs.truncate(path, length)
+        return 0
 
     def write(self, path, buf, offset, fh):
-        logging.info("written %s" % buf)
-        return len(buf)
+        written = self.fs.write(path, buf, offset)
+        return written
 
     def flush(self, path, fh):
         logging.info("FLUSHED " + path)
+        self.fs.sync(path)
         return 0
 
     def release(self, path, fh):
         logging.info("CLOSED " + path)
+        self.fs.close(path)
         return 0
 
 def main():
@@ -52,7 +57,7 @@ def main():
         print('usage: %s <mountpoint>' % sys.argv[0])
         exit(1)
 
-    logging.basicConfig(level=logging.INFO)
+    logging.basicConfig(level=logging.DEBUG)
     fuse = FUSE(KubeFuse(sys.argv[1]), sys.argv[1], foreground=True)
 
 if __name__ == '__main__':
