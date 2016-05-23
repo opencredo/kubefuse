@@ -10,7 +10,7 @@ from kubefuse.filesystem import KubeFileSystem
 class KubeFileSystemTest(unittest.TestCase):
     def test_getattr_for_namespace(self):
         fs = KubeFileSystem(KubernetesClient())
-        path = KubePath().parse_path('/default')
+        path = '/default'
         attr = fs.getattr(path)
         assert_that(attr['st_mode'], is_(stat.S_IFDIR | 0555))
         assert_that(attr['st_nlink'], is_(2))
@@ -19,7 +19,7 @@ class KubeFileSystemTest(unittest.TestCase):
 
     def test_getattr_for_resource(self):
         fs = KubeFileSystem(KubernetesClient())
-        path = KubePath().parse_path('/default/pod')
+        path = '/default/pod'
         attr = fs.getattr(path)
         assert_that(attr['st_mode'], is_(stat.S_IFDIR | 0555))
         assert_that(attr['st_nlink'], is_(2))
@@ -30,7 +30,7 @@ class KubeFileSystemTest(unittest.TestCase):
         client = KubernetesClient()
         pod = client.get_pods()[0]
         fs = KubeFileSystem(client)
-        path = KubePath().parse_path('/default/pod/%s' % pod)
+        path = '/default/pod/%s' % pod
         attr = fs.getattr(path)
         assert_that(attr['st_mode'], is_(stat.S_IFDIR | 0555))
         assert_that(attr['st_nlink'], is_(2))
@@ -41,7 +41,7 @@ class KubeFileSystemTest(unittest.TestCase):
         client = KubernetesClient()
         pod = client.get_pods()[0]
         fs = KubeFileSystem(client)
-        path = KubePath().parse_path('/default/pod/%s/describe' % pod)
+        path = '/default/pod/%s/describe' % pod
         attr = fs.getattr(path)
         data = client.describe('default', 'pod', pod)
         assert_that(attr['st_mode'], is_(stat.S_IFREG | 0444))
@@ -53,7 +53,7 @@ class KubeFileSystemTest(unittest.TestCase):
         client = KubernetesClient()
         pod = client.get_pods()[0]
         fs = KubeFileSystem(client)
-        path = KubePath().parse_path('/default/pod/%s/json' % pod)
+        path = '/default/pod/%s/json' % pod
         attr = fs.getattr(path)
         data = client.get_object_in_format('default', 'pod', pod, 'json')
         assert_that(attr['st_size'], is_(len(data)))
@@ -62,7 +62,7 @@ class KubeFileSystemTest(unittest.TestCase):
         client = KubernetesClient()
         pod = client.get_pods()[0]
         fs = KubeFileSystem(client)
-        path = KubePath().parse_path('/default/pod/%s/yaml' % pod)
+        path = '/default/pod/%s/yaml' % pod
         attr = fs.getattr(path)
         data = client.get_object_in_format('default', 'pod', pod, 'yaml')
         assert_that(attr['st_size'], is_(len(data)))
@@ -71,7 +71,7 @@ class KubeFileSystemTest(unittest.TestCase):
         client = KubernetesClient()
         pod = client.get_pods()[0]
         fs = KubeFileSystem(client)
-        path = KubePath().parse_path('/default/pod/%s/logs' % pod)
+        path = '/default/pod/%s/logs' % pod
         attr = fs.getattr(path)
         data = client.logs('default', pod)
         assert_that(attr['st_size'], is_(len(data)))
@@ -79,7 +79,7 @@ class KubeFileSystemTest(unittest.TestCase):
     def test_getattr_for_nonexistent_path(self):
         client = KubernetesClient()
         fs = KubeFileSystem(client)
-        path = KubePath().parse_path('/doesnt-exist')
+        path = '/doesnt-exist'
         assert_that(calling(lambda: fs.getattr(path)), raises(FuseOSError))
 
     def test_list_files_for_root(self):
