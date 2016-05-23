@@ -31,7 +31,7 @@ class KubeFuse(LoggingMixIn, Operations):
         return self.fd
 
     def read(self, path, size, offset, fh):
-        return self.fs.read(KubePath().parse_path(path), size, offset)
+        return self.fs.read(path, size, offset)
 
     def truncate(self, path, length, fh=None):
         self.fs.truncate(path, length)

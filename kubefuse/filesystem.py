@@ -27,7 +27,7 @@ class KubeFileSystem(object):
                 st_size=size, st_ctime=ts, st_mtime=ts,
                 st_atime=ts)
 
-    def open_for_reading(self, path):
+    def open_for_writing(self, path):
         if path not in self.open_files:
             self.open_files[path] = KubePath().parse_path(path).do_action(self.client)
 
@@ -35,11 +35,11 @@ class KubeFileSystem(object):
         pass
 
     def truncate(self, path, length):
-        self.open_for_reading(path)
+        self.open_for_writing(path)
         self.open_files[path] = self.open_files[path][:length]
 
     def write(self, path, buf, offset):
-        self.open_for_reading(path)
+        self.open_for_writing(path)
         self.open_files[path] = self.open_files[path][:offset] + buf
         return len(buf)
 
@@ -53,16 +53,17 @@ class KubeFileSystem(object):
         self.client.delete_from_cache(p.namespace, p.resource_type, 
             p.object_id, p.action)
 
-    def sync(self, path):
+    def sync(self, path, dry_run=False):
         if path not in self.open_files:
             return
-        self.persist(path, self.open_files[path])
+        self.persist(path, self.open_files[path], dry_run)
 
-    def persist(self, path, data):
+    def persist(self, path, data, dry_run=False):
         if path in self.flushed and data == self.flushed[path]:
             return 
         self.flushed[path] = data
-        self.client.replace(data)
+        if not dry_run:
+            self.client.replace(data)
 
     def list_files(self, path):
         if not path.exists(self.client):
@@ -96,9 +97,13 @@ class KubeFileSystem(object):
             return self._stat_file(self.client, path, mode)
         return self._stat_dir()
 
-    def read(self, path, size, offset):
+    def read(self, p, size, offset):
+        path = KubePath().parse_path(p)
         if not path.is_file():
             raise FuseOSError(errno.ENOENT)
-        data = path.do_action(self.client)
-        return data[offset:size + 1]
+        if p in self.flushed:
+            data = self.flushed[p]
+        else:
+            data = path.do_action(self.client)
+        return data[offset:offset + size]
 
