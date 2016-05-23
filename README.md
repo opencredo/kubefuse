@@ -21,7 +21,7 @@ Beta quality software for quick Kubernetes browsing and editing. What's not to l
 * List all your favourite resources such as: services, replication controllers, pods and namespaces
 * Access resource descriptions as files (eg. `cat ~/kubernetes/default/pod/postgres-aazm1/describe`)
 * Quickly read resources as YAML or JSON (eg. `cat ~/kubernetes/default/pod/postgres-aazm1/json`)
-* Edit resources with your editor of choice and have Kubernetes update on writes (`vim ~/kubernetes/default/pod/postgres-aazm1/json` :raising_hand:)
+* Edit resources with your editor of choice and have Kubernetes update on writes (`vim ~/kubernetes/default/rc/postgres/json` :raising_hand:)
 
 ## Requirements
 
