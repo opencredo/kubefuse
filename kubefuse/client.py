@@ -65,7 +65,7 @@ class KubernetesClient(object):
         tmpfile = tempfile.mktemp()
         with open(tmpfile, 'w') as f:
             f.write(data)
-        print self._run_command(('replace -f ' + tmpfile).split())
+        print self._run_command(('apply -f ' + tmpfile).split())
 
 
     def _get_namespaces(self):
