@@ -54,7 +54,7 @@ def main():
         print('usage: %s <mountpoint>' % sys.argv[0])
         exit(1)
 
-    logging.basicConfig(level=logging.DEBUG)
+    logging.basicConfig(level=logging.INFO)
     fuse = FUSE(KubeFuse(sys.argv[1]), sys.argv[1], foreground=True)
 
 if __name__ == '__main__':

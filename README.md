@@ -12,16 +12,16 @@ Because kubectl is great, but sometimes a bit slow to navigate.
 
 Enter KubeFuse.
 
-Beta quality software for quick Kubernetes browsing. What's not to love.
+Beta quality software for quick Kubernetes browsing and editing. What's not to love.
 
 ## Features
 
 * Browse Kubernetes resources in your file system...
-* ...with (some of) your favourite tools: `ls`, `find`, `cat`, ...
+* ...with (some of) your favourite tools: `ls`, `find`, `cat`, `vim`, ...
 * List all your favourite resources such as: services, replication controllers, pods and namespaces
-* Export resources to YAML and JSON
 * Access resource descriptions as files (eg. `cat ~/kubernetes/default/pod/postgres-aazm1/describe`)
-* And that's it, but more may be coming. 
+* Quickly read resources as YAML or JSON (eg. `cat ~/kubernetes/default/pod/postgres-aazm1/json`)
+* Edit resources with your editor of choice and have Kubernetes update on writes (`vim ~/kubernetes/default/pod/postgres-aazm1/json` :raising_hand:)
 
 ## Requirements
 
@@ -126,4 +126,16 @@ Export all service definitions in the default namespace:
 ```
 find ~/kubernetes/default/svc -name yaml | while read line ; do cat $line ; echo "----" ; echo ; done
 ```
+
+We can edit replication controllers and other resources in our editor. Saving the file will replace the resource in kubernetes:
+
+```
+vim ~/kubernetes/default/rc/postgres/json
+```
+
+## License
+
+Apache License version 2.0 [See LICENSE for details](./blob/master/LICENSE).
+
+(c) [OpenCredo](https://opencredo.com) 2016.
 
