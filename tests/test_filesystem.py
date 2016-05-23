@@ -94,7 +94,7 @@ class KubeFileSystemTest(unittest.TestCase):
     def test_list_files_for_root(self):
         client = KubernetesClient()
         fs = KubeFileSystem(client)
-        path = KubePath().parse_path('/')
+        path = '/'
         files = fs.list_files(path)
         namespaces = client.get_namespaces()
         assert_that(files, contains(*namespaces))
@@ -103,7 +103,7 @@ class KubeFileSystemTest(unittest.TestCase):
     def test_list_files_for_namespace(self):
         client = KubernetesClient()
         fs = KubeFileSystem(client)
-        path = KubePath().parse_path('/default')
+        path = '/default'
         files = fs.list_files(path)
         assert_that(files, contains('pod', 'svc', 'rc', 'nodes', 'events',
             'cs', 'limits', 'pv', 'pvc', 'quota', 'endpoints', 'serviceaccounts',
@@ -112,7 +112,7 @@ class KubeFileSystemTest(unittest.TestCase):
     def test_list_files_for_resource(self):
         client = KubernetesClient()
         fs = KubeFileSystem(client)
-        path = KubePath().parse_path('/default/pod')
+        path = '/default/pod'
         files = fs.list_files(path)
         pods = client.get_pods()
         assert_that(files, contains(*pods))
@@ -121,7 +121,7 @@ class KubeFileSystemTest(unittest.TestCase):
         client = KubernetesClient()
         fs = KubeFileSystem(client)
         pod = client.get_pods()[0]
-        path = KubePath().parse_path('/default/pod/%s' % pod)
+        path = '/default/pod/%s' % pod
         files = fs.list_files(path)
         assert_that(files, has_items('describe', 'logs', 'json', 'yaml'))
         assert_that(len(files), is_(4))
@@ -130,7 +130,7 @@ class KubeFileSystemTest(unittest.TestCase):
         client = KubernetesClient()
         fs = KubeFileSystem(client)
         rc = client.get_replication_controllers()[0]
-        path = KubePath().parse_path('/default/rc/%s' % rc)
+        path = '/default/rc/%s' % rc
         files = fs.list_files(path)
         assert_that(files, has_items('describe', 'json', 'yaml'))
         assert_that(len(files), is_(3))
@@ -139,13 +139,13 @@ class KubeFileSystemTest(unittest.TestCase):
         client = KubernetesClient()
         fs = KubeFileSystem(client)
         pod = client.get_pods()[0]
-        path = KubePath().parse_path('/default/pod/%s/describe' % pod)
+        path = '/default/pod/%s/describe' % pod
         assert_that(calling(lambda: fs.list_files(path)), raises(FuseOSError))
 
     def test_list_files_for_nonexistent_path(self):
         client = KubernetesClient()
         fs = KubeFileSystem(client)
-        path = KubePath().parse_path('/doesnt-exist')
+        path = '/doesnt-exist'
         assert_that(calling(lambda: fs.list_files(path)), raises(FuseOSError))
 
     def test_read_describe(self):

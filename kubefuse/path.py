@@ -74,6 +74,9 @@ class KubePath(object):
         if self.action in ['json', 'yaml']:
             return client.get_object_in_format(ns, rt, oid, self.action)
 
+    def get_mode(self):
+        return 0444 if self.action not in ['json', 'yaml'] else 0666
+
     def __repr__(self):
         result = ['<']
         if self.action is not None:

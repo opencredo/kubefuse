@@ -20,7 +20,7 @@ class KubeFuse(LoggingMixIn, Operations):
         print "Mounted on", mount
 
     def readdir(self, path, fh):
-        return self.fs.list_files(KubePath().parse_path(path))
+        return self.fs.list_files(path)
 
     def getattr(self, path, fh=None):
         return self.fs.getattr(path)
