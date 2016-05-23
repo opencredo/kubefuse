@@ -9,6 +9,7 @@ class KubeFileSystem(object):
     def __init__(self, client):
         self.client = client
         self.open_files = {}
+        self.flushed = {}
 
     def _stat_dir(self):
         return dict(st_mode=(S_IFDIR | 0555), st_nlink=2,
@@ -26,23 +27,31 @@ class KubeFileSystem(object):
                 st_size=size, st_ctime=ts, st_mtime=ts,
                 st_atime=ts)
 
-    def open(self, path):
-        self.open_files[path] = KubePath().parse_path(path).do_action(self.client)
+    def open_for_reading(self, path):
+        if path not in self.open_files:
+            self.open_files[path] = KubePath().parse_path(path).do_action(self.client)
+
+    def open(self, path, fh):
+        pass
 
     def truncate(self, path, length):
+        self.open_for_reading(path)
         self.open_files[path] = self.open_files[path][:length]
 
     def write(self, path, buf, offset):
+        self.open_for_reading(path)
         self.open_files[path] = self.open_files[path][:offset] + buf
         return len(buf)
 
     def close(self, path):
         if path not in self.open_files:
             return
-        logging.info("Path %s is now %s" % (path, self.open_files[path]))
         self.persist(path, self.open_files[path])
         del(self.open_files[path])
-        # TODO delete from cache
+        del(self.flushed[path])
+        p = KubePath().parse_path(path)
+        self.client.delete_from_cache(p.namespace, p.resource_type, 
+            p.object_id, p.action)
 
     def sync(self, path):
         if path not in self.open_files:
@@ -50,7 +59,10 @@ class KubeFileSystem(object):
         self.persist(path, self.open_files[path])
 
     def persist(self, path, data):
-        pass
+        if path in self.flushed and data == self.flushed[path]:
+            return 
+        self.flushed[path] = data
+        self.client.replace(data)
 
     def list_files(self, path):
         if not path.exists(self.client):

@@ -25,16 +25,15 @@ class KubeFuse(LoggingMixIn, Operations):
     def getattr(self, path, fh=None):
         return self.fs.getattr(path)
 
-    def open(self, path, flags):
+    def open(self, path, fh):
         self.fd += 1
-        self.fs.open(path)
+        self.fs.open(path, fh)
         return self.fd
 
     def read(self, path, size, offset, fh):
         return self.fs.read(KubePath().parse_path(path), size, offset)
 
     def truncate(self, path, length, fh=None):
-        logging.info("TRUNCATED")
         self.fs.truncate(path, length)
         return 0
 
@@ -43,12 +42,10 @@ class KubeFuse(LoggingMixIn, Operations):
         return written
 
     def flush(self, path, fh):
-        logging.info("FLUSHED " + path)
         self.fs.sync(path)
         return 0
 
     def release(self, path, fh):
-        logging.info("CLOSED " + path)
         self.fs.close(path)
         return 0
 

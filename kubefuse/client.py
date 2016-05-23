@@ -1,5 +1,6 @@
 import subprocess
 import yaml
+import tempfile
 
 from cache import ExpiringCache
 
@@ -44,6 +45,10 @@ class KubernetesClient(object):
         cb = lambda: self._describe(ns, entity_type, object)
         return self._load_from_cache_or_do(key, cb)
 
+    def delete_from_cache(self, ns, entity_type, object, format):
+        key = "%s.%s.%s.%s" % (ns, entity_type, object, format)
+        self._cache.delete(key)
+
     def logs(self, ns, object):
         key = "%s.pod.%s.logs" % (ns, object)
         cb = lambda: self._logs(ns, object)
@@ -55,6 +60,12 @@ class KubernetesClient(object):
         return self.get_entities(ns, 'svc')
     def get_replication_controllers(self, ns='default'):
         return self.get_entities(ns, 'rc')
+
+    def replace(self, data):
+        tmpfile = tempfile.mktemp()
+        with open(tmpfile, 'w') as f:
+            f.write(data)
+        print self._run_command(('replace -f ' + tmpfile).split())
 
 
     def _get_namespaces(self):

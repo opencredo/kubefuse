@@ -21,6 +21,9 @@ class ExpiringCache(object):
         if now < expires_at:
             logging.info("Retrieved '%s' from cache" % key)
             return self._cache[key]
+        self.delete(key)
+        return None
+
+    def delete(self, key):
         del(self._timestamps[key])
         del(self._cache[key])
-        return None
