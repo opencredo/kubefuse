@@ -83,6 +83,37 @@ class KubeFileSystem(object):
             return p.SUPPORTED_RESOURCE_TYPES
         return self.client.get_namespaces() # + ['all']
 
+    def rmdir(self, path):
+        p = KubePath().parse_path(path)
+        if not p.exists(self.client):
+            logging.info("path doesn't exist")
+            raise FuseOSError(errno.ENOENT)
+        if not p.is_dir():
+            logging.info("not a directory")
+            raise FuseOSError(errno.ENOTDIR)
+
+        if p.action:
+            raise FuseOSError(errno.EROFS)
+        if p.object_id:
+            return self.client.delete_entity(p.namespace, p.resource_type, p.object_id)
+        if p.resource_type:
+            return self.client.delete_entities(p.namespace, p.resource_type)
+        if p.namespace:
+            return self.client.delete_namespace(p.namespace)
+        raise FuseOSError(errno.EROFS)
+
+    def unlink(self, path):
+        p = KubePath().parse_path(path)
+        if not p.exists(self.client):
+            logging.info("path doesn't exist")
+            raise FuseOSError(errno.ENOENT)
+        if p.is_dir():
+            logging.info("is a directory")
+            raise FuseOSError(errno.EISDIR)
+        # We just let unlinks succeed, though the files will remain
+        # This is for compatibility with `rm -rf` - though just using rmdir
+        # will have the same effect in this implementation
+
     def getattr(self, path):
         p = KubePath().parse_path(path)
         if path in self.open_files:
