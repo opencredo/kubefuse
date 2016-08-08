@@ -3,7 +3,7 @@ KubeFuse
 
 ![KubeFuse](logo.png)
 
-Kubernetes as a Filesystem
+Kubernetes as a Filesystem [![Build Status](https://travis-ci.org/opencredo/kubefuse.svg?branch=master)](https://travis-ci.org/opencredo/kubefuse)
 
 
 ## Why?
