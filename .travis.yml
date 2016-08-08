@@ -9,5 +9,6 @@ install:
 
 script: 
 - "wget https://github.com/SpectoLabs/myna/releases/download/v1/myna"
+- "chmod +x myna"
 - "export PATH=$PWD:$PATH"
 - "make test"
