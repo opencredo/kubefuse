@@ -1,6 +1,7 @@
 import subprocess
 import yaml
 import tempfile
+import six
 
 from cache import ExpiringCache
 
@@ -65,7 +66,7 @@ class KubernetesClient(object):
         tmpfile = tempfile.mktemp()
         with open(tmpfile, 'w') as f:
             f.write(data)
-        print self._run_command(('apply -f ' + tmpfile).split())
+        six.print_(self._run_command(('apply -f ' + tmpfile).split()))
 
 
     def _get_namespaces(self):

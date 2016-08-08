@@ -2,3 +2,4 @@ fusepy==2.0.4
 PyHamcrest==1.8.5
 python-myna==1.1.0
 PyYAML==3.11
+six==1.10.0

@@ -12,7 +12,7 @@ class KubeFileSystem(object):
         self.flushed = {}
 
     def _stat_dir(self):
-        return dict(st_mode=(S_IFDIR | 0555), st_nlink=2,
+        return dict(st_mode=(S_IFDIR | 0o555), st_nlink=2,
                 st_size=0, st_ctime=time(), st_mtime=time(),
                 st_atime=time())
 
