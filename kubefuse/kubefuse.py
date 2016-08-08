@@ -4,6 +4,7 @@ import logging
 import sys
 import os
 import errno
+import six
 from fuse import FUSE, FuseOSError, Operations, LoggingMixIn
 
 from cache import ExpiringCache
@@ -17,7 +18,7 @@ class KubeFuse(LoggingMixIn, Operations):
         self.client = KubernetesClient()
         self.fs = KubeFileSystem(self.client)
         self.fd = 0
-        print "Mounted on", mount
+        six.print_("Mounted on", mount)
 
     def readdir(self, path, fh):
         return self.fs.list_files(path)
@@ -51,7 +52,7 @@ class KubeFuse(LoggingMixIn, Operations):
 
 def main():
     if len(sys.argv) != 2:
-        print('usage: %s <mountpoint>' % sys.argv[0])
+        six.print_('usage: %s <mountpoint>' % sys.argv[0])
         exit(1)
 
     logging.basicConfig(level=logging.INFO)

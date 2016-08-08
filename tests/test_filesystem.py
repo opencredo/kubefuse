@@ -105,7 +105,7 @@ class KubeFileSystemTest(unittest.TestCase):
         fs = KubeFileSystem(client)
         path = '/default'
         files = fs.list_files(path)
-        assert_that(files, contains('pod', 'svc', 'rc', 'nodes', 'events',
+        assert_that(files, contains('pod', 'svc', 'rc', 'deployment', 'nodes', 'events',
             'cs', 'limits', 'pv', 'pvc', 'quota', 'endpoints', 'serviceaccounts',
             'secrets'))
 
