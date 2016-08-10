@@ -7,28 +7,28 @@ class KubePath(object):
         self.resource_type = resource_type
         self.object_id = object_id
         self.action = None
-	self.SUPPORTED_RESOURCE_TYPES = [
-		'configmaps',
-		'componentstatuses', 
-		'daemonsets',
-		'deployments',
-		'endpoints',
-		'events', 
-		'horizontalpodautoscalers',
-		'ingress',
-		'jobs',
-		'limits', 
-		'nodes', 
-		'pod', 
-		'pv', 
-		'pvc',
-		'quota', 
-		'rc', 
-		'replicasets',
-		'secrets',
-		'serviceaccounts', 
-		'svc', 
-		]
+        self.SUPPORTED_RESOURCE_TYPES = [
+            'configmaps',
+            'componentstatuses', 
+            'daemonsets',
+            'deployments',
+            'endpoints',
+            'events', 
+            'horizontalpodautoscalers',
+            'ingress',
+            'jobs',
+            'limits', 
+            'nodes', 
+            'pod', 
+            'pv', 
+            'pvc',
+            'quota', 
+            'rc', 
+            'replicasets',
+            'secrets',
+            'serviceaccounts', 
+            'svc', 
+        ]
         self.SUPPORTED_ACTIONS = ['describe', 'json', 'yaml']
         self.SUPPORTED_POD_ACTIONS = ['logs'] + self.SUPPORTED_ACTIONS
 
