@@ -6,11 +6,27 @@ import six
 from . import cache
 
 class KubernetesClient(object):
-    def __init__(self):
+    def __init__(self, kubeconfig = None, cluster = None, context = None, user = None):
         self._cache = cache.ExpiringCache(30)
+        self.kubeconfig = kubeconfig
+        self.cluster = cluster 
+        self.context = context
+        self.user = user
+
+    def _base_kubectl_command(self):
+        result = ['kubectl']
+        if self.kubeconfig is not None:
+            result += ['--kubeconfig', self.kubeconfig]
+        if self.cluster is not None:
+            result += ['--cluster', self.cluster]
+        if self.context is not None:
+            result += ['--context', self.context]
+        if self.user is not None:
+            result += ['--user', self.user]
+        return result
 
     def _run_command(self, cmd):
-        return subprocess.check_output(' '.join(['kubectl'] + cmd), shell=True)
+        return subprocess.check_output(' '.join(self._base_kubectl_command() + cmd), shell=True)
 
     def _run_command_and_parse_yaml(self, cmd):
         return yaml.load(self._run_command(cmd))

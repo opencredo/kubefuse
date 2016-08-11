@@ -5,6 +5,7 @@ import sys
 import os
 import errno
 import six
+import argparse
 from fuse import FUSE, FuseOSError, Operations, LoggingMixIn
 
 from . import client
@@ -12,11 +13,11 @@ from . import filesystem
 
 class KubeFuse(LoggingMixIn, Operations):
 
-    def __init__(self, mount):
-        self.client = client.KubernetesClient()
+    def __init__(self, mount, kubeconfig = None, cluster = None, context = None, user = None):
+        self.client = client.KubernetesClient(kubeconfig, cluster, context, user)
         self.fs = filesystem.KubeFileSystem(self.client)
         self.fd = 0
-        six.print_("Mounted on", mount)
+        six.print_("Mounting KubeFuse on", mount)
 
     def readdir(self, path, fh):
         return self.fs.list_files(path)
@@ -48,13 +49,25 @@ class KubeFuse(LoggingMixIn, Operations):
         self.fs.close(path)
         return 0
 
-def main():
-    if len(sys.argv) != 2:
-        six.print_('usage: %s <mountpoint>' % sys.argv[0])
-        exit(1)
+def parse_args():
+    parser = argparse.ArgumentParser(description='A file system view for Kubernetes')
+    parser.add_argument('mountpoint', metavar='MOUNTPOINT', type=str, 
+        help='The directory to mount on')
+    parser.add_argument('--kubeconfig', dest='kubeconfig', 
+        help='Path to the kubeconfig file')
+    parser.add_argument('--cluster', dest='cluster', 
+        help='The name of the kubeconfig cluster to use')
+    parser.add_argument('--context', dest='context', 
+        help='The name of the kubeconfig context to use')
+    parser.add_argument('--user', dest='user', 
+        help='The name of the kubeconfig user to use')
+    return parser.parse_args()
 
+def main():
+    args = parse_args()
     logging.basicConfig(level=logging.INFO)
-    fuse = FUSE(KubeFuse(sys.argv[1]), sys.argv[1], foreground=True)
+    fuse = FUSE(KubeFuse(args.mountpoint, args.kubeconfig, args.cluster, args.context),
+                    args.mountpoint, foreground=True)
 
 if __name__ == '__main__':
     main()
