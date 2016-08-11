@@ -12,7 +12,7 @@ class KubeFileSystemTest(unittest.TestCase):
         fs = KubeFileSystem(KubernetesClient())
         path = '/default'
         attr = fs.getattr(path)
-        assert_that(attr['st_mode'], is_(stat.S_IFDIR | 0555))
+        assert_that(attr['st_mode'], is_(stat.S_IFDIR | 0o555))
         assert_that(attr['st_nlink'], is_(2))
         assert_that(attr['st_size'], is_(0))
         # NB. time not tested, but whatever
@@ -21,7 +21,7 @@ class KubeFileSystemTest(unittest.TestCase):
         fs = KubeFileSystem(KubernetesClient())
         path = '/default/pod'
         attr = fs.getattr(path)
-        assert_that(attr['st_mode'], is_(stat.S_IFDIR | 0555))
+        assert_that(attr['st_mode'], is_(stat.S_IFDIR | 0o555))
         assert_that(attr['st_nlink'], is_(2))
         assert_that(attr['st_size'], is_(0))
         # NB. time not tested, but whatever
@@ -32,7 +32,7 @@ class KubeFileSystemTest(unittest.TestCase):
         fs = KubeFileSystem(client)
         path = '/default/pod/%s' % pod
         attr = fs.getattr(path)
-        assert_that(attr['st_mode'], is_(stat.S_IFDIR | 0555))
+        assert_that(attr['st_mode'], is_(stat.S_IFDIR | 0o555))
         assert_that(attr['st_nlink'], is_(2))
         assert_that(attr['st_size'], is_(0))
         # NB. time not tested, but whatever
@@ -44,7 +44,7 @@ class KubeFileSystemTest(unittest.TestCase):
         path = '/default/pod/%s/describe' % pod
         attr = fs.getattr(path)
         data = client.describe('default', 'pod', pod)
-        assert_that(attr['st_mode'], is_(stat.S_IFREG | 0444))
+        assert_that(attr['st_mode'], is_(stat.S_IFREG | 0o444))
         assert_that(attr['st_nlink'], is_(1))
         assert_that(attr['st_size'], is_(len(data)))
         # NB. time not tested, but whatever
@@ -209,5 +209,5 @@ class KubeFileSystemTest(unittest.TestCase):
         fs.write(path, 'write', 4)
         fs.sync(path, dry_run=True)
         data = fs.read(path, 1000, 0)
-        assert_that(data, is_('testwrite'))
+        assert_that(data, is_(b'testwrite'))
 

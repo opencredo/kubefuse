@@ -7,16 +7,14 @@ import errno
 import six
 from fuse import FUSE, FuseOSError, Operations, LoggingMixIn
 
-from cache import ExpiringCache
-from client import KubernetesClient
-from path import KubePath
-from filesystem import KubeFileSystem
+from . import client
+from . import filesystem 
 
 class KubeFuse(LoggingMixIn, Operations):
 
     def __init__(self, mount):
-        self.client = KubernetesClient()
-        self.fs = KubeFileSystem(self.client)
+        self.client = client.KubernetesClient()
+        self.fs = filesystem.KubeFileSystem(self.client)
         self.fd = 0
         six.print_("Mounted on", mount)
 

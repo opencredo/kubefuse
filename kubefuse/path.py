@@ -47,7 +47,8 @@ class KubePath(object):
         metadata = client.get_object_in_format(
             self.namespace, self.resource_type,
             self.object_id, 'json')
-        json_data = json.loads(metadata)
+        metadata = "" if metadata is None else metadata
+        json_data = json.loads(metadata.decode('utf-8'))
         ts = None
         if 'metadata' in json_data:
             if 'creationTimestamp' in json_data['metadata']:

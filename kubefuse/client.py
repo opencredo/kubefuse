@@ -3,11 +3,11 @@ import yaml
 import tempfile
 import six
 
-from cache import ExpiringCache
+from . import cache
 
 class KubernetesClient(object):
     def __init__(self):
-        self._cache = ExpiringCache(30)
+        self._cache = cache.ExpiringCache(30)
 
     def _run_command(self, cmd):
         return subprocess.check_output(' '.join(['kubectl'] + cmd), shell=True)

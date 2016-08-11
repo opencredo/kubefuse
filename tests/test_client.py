@@ -39,17 +39,17 @@ class KubernetesClientTest(unittest.TestCase):
         client = KubernetesClient()
         pods = client.get_pods("default")
         pod = client.get_object_in_format('default', 'pod', pods[0], 'json')
-        result = json.loads(pod)
+        result = json.loads(pod.decode('utf-8'))
         assert_that(result['metadata']['name'], is_(pods[0]))
 
     def test_describe(self):
         client = KubernetesClient()
         pods = client.get_pods("default")
         describe = client.describe('default', 'pod', pods[0])
-        assert_that(describe, contains_string(pods[0]))
+        assert_that(str(describe), contains_string(pods[0]))
 
     def test_logs(self):
         client = KubernetesClient()
         pods = client.get_pods("default")
         describe = client.logs('default', pods[0])
-        assert_that(describe, contains_string(pods[0]))
+        assert_that(str(describe), contains_string(pods[0]))

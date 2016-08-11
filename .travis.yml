@@ -1,16 +1,21 @@
 language: python
 python:
 - '2.7'
+- '3.5'
+
 before_install:
 - sudo apt-get -qq update
 - sudo apt-get install -y libfuse-dev
+
 install:
 - pip install -r requirements.txt
+
 script:
 - wget https://github.com/SpectoLabs/myna/releases/download/v1/myna
 - chmod +x myna
 - export PATH=$PWD:$PATH
 - make test
+
 notifications:
   slack:
     secure: rDzLrNVdqxnPLQqWsC4511edbsjD3pLyK41Py8xfUUTU+hTadnzgWI31kiO7V+6t/lnK8TnI54l8vDYuFhqDPE/F11LDi6NpLREjubIp1rY1L0vtZJLuHN+za/R9BpajWsJOEYsQCUUAdHwh0YCXoJ7nWTWblMVy+IyFDFSPky0ezeXpqVw+HSSbLE7rS7YOi7gQjM6n5QVMYnLMevdZD9NYmi7xvFaAff2qmenRysNPLiJP08Z3alFkwo/f1WmJbVtsUw6yh9JkCAr9xg6e2VGWwx0XAhWVYp+rS573WKnz0Jd13HKzwGu2ChW3AJphYRzwFVVLKve8GSSBOSFnVAveUmUaitmegC57hOKrday1QUsv6VLVzMdlvzOkWt5nR0lDXgED8yI9sW6Ib7YFbIXaLnt03+iI+nP9wHUkAqx2ZFrUeeEDJmoU69D0UuULIo4cubIoZZMUVwFUOhIEjDtTzzDWzR7wFZ8aIGiCCY+kbZIylWkj30Q3sbBcdWhgMo29pz98rt75B6y2FJ6LTjyfDczL4GIyP0D9gtMXg2mjRCmjNCp2wS3YQeAjQ9JfmVx0SdztLpj72iRqqp0ugDhktRf1cs6vtU0gtuvGz1xmazz7q8erLNypnB7hpA4gTbyETnsL3EaxgenqVwim3qZtEETAiLv1r1OOj5+hsu8=

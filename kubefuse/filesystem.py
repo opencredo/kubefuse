@@ -3,7 +3,8 @@ from time import time
 import logging
 import errno
 from fuse import FuseOSError
-from path import KubePath
+from . import path 
+KubePath = path.KubePath
 
 class KubeFileSystem(object):
     def __init__(self, client):
@@ -28,7 +29,8 @@ class KubeFileSystem(object):
 
     def open_for_writing(self, path):
         if path not in self.open_files:
-            self.open_files[path] = KubePath().parse_path(path).do_action(self.client)
+            contents = KubePath().parse_path(path).do_action(self.client)
+            self.open_files[path] = bytes(contents)
 
     def open(self, path, fh):
         pass
@@ -39,6 +41,8 @@ class KubeFileSystem(object):
 
     def write(self, path, buf, offset):
         self.open_for_writing(path)
+        if type(buf) == str:
+            buf = buf.encode('utf-8')
         self.open_files[path] = self.open_files[path][:offset] + buf
         return len(buf)
 
