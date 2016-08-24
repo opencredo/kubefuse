@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name = "kubefuse",
-    version = "0.7.2",
+    version = "0.7.3",
     packages = find_packages(),
     author = "Bart Spaans",
     author_email = "bart.spaans@gmail.com",
