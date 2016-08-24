@@ -6,7 +6,14 @@ import os
 import errno
 import six
 import argparse
-from fuse import FUSE, FuseOSError, Operations, LoggingMixIn
+import sys
+try:
+    from fuse import FUSE, FuseOSError, Operations, LoggingMixIn
+except EnvironmentError:
+    print "It looks like the Fuse system library is missing."
+    print "Please install libfuse using your OS's package manager, or download OSXFUSE if you're on a Mac"
+    sys.exit(1)
+
 
 from . import client
 from . import filesystem 
