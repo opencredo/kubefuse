@@ -20,5 +20,11 @@ setup(
         'console_scripts': [
             'kubefuse = kubefuse.kubefuse:main'
         ]
-    }
+    },
+    install_requires = [
+        'fusepy>=2.0.4',
+        'python-myna==1.2.0',
+        'PyYAML>=3',
+        'six>=1.10.0'
+    ]
  )
