@@ -1,8 +1,9 @@
 import json
 from datetime import datetime
 
+
 class KubePath(object):
-    def __init__(self, namespace = None, resource_type = None, object_id = None, action = None):
+    def __init__(self, namespace=None, resource_type=None, object_id=None, action=None):
         self.namespace = namespace 
         self.resource_type = resource_type
         self.object_id = object_id
@@ -33,7 +34,8 @@ class KubePath(object):
         self.SUPPORTED_POD_ACTIONS = ['logs'] + self.SUPPORTED_ACTIONS
 
     def parse_path(self, path):
-        if path == '/': return self
+        if path == '/':
+            return self
         parts = path[1:].split("/")
         self.namespace = parts[0] if len(parts) > 0 else None
         self.resource_type = parts[1] if len(parts) > 1 else None

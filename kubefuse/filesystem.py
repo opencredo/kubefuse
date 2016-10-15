@@ -1,4 +1,4 @@
-from stat import S_IFDIR, S_IFLNK, S_IFREG, S_IFIFO
+from stat import S_IFDIR, S_IFREG
 from time import time
 import logging
 import errno
@@ -6,18 +6,23 @@ from fuse import FuseOSError
 from . import path 
 KubePath = path.KubePath
 
+logger = logging.getLogger(__name__)
+
+
 class KubeFileSystem(object):
     def __init__(self, client):
         self.client = client
         self.open_files = {}
         self.flushed = {}
 
-    def _stat_dir(self):
+    @staticmethod
+    def _stat_dir():
         return dict(st_mode=(S_IFDIR | 0o555), st_nlink=2,
                 st_size=0, st_ctime=time(), st_mtime=time(),
                 st_atime=time())
 
-    def _stat_file(self, client, path, size=None):
+    @staticmethod
+    def _stat_file(client, path, size=None):
         if size is None:
             size = len(path.do_action(client))
         ts = path.get_creation_date_for_action_file(client)
@@ -71,10 +76,10 @@ class KubeFileSystem(object):
     def list_files(self, path):
         p = KubePath().parse_path(path)
         if not p.exists(self.client):
-            logging.info("path doesn't exist")
+            logger.info("path doesn't exist")
             raise FuseOSError(errno.ENOENT)
         if not p.is_dir():
-            logging.info("not a directory")
+            logger.info("not a directory")
             raise FuseOSError(errno.ENOTDIR)
         if p.object_id is not None: 
             if p.resource_type != 'pod':
@@ -85,14 +90,14 @@ class KubeFileSystem(object):
             return self.client.get_entities(p.namespace, p.resource_type)
         if p.namespace is not None:
             return p.SUPPORTED_RESOURCE_TYPES
-        return self.client.get_namespaces() # + ['all']
+        return self.client.get_namespaces()  # + ['all']
 
     def getattr(self, path):
         p = KubePath().parse_path(path)
         if path in self.open_files:
             return self._stat_file(self.client, p, len(self.open_files[path]))
         if not p.exists(self.client):
-            logging.info("path doesn't exist")
+            logger.info("path '%s' doesn't exist" % path)
             raise FuseOSError(errno.ENOENT)
         if p.action is not None:
             return self._stat_file(self.client, p)

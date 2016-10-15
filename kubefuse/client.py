@@ -5,8 +5,9 @@ import six
 
 from . import cache
 
+
 class KubernetesClient(object):
-    def __init__(self, kubeconfig = None, cluster = None, context = None, user = None):
+    def __init__(self, kubeconfig=None, cluster=None, context=None, user=None):
         self._cache = cache.ExpiringCache(30)
         self.kubeconfig = kubeconfig
         self.cluster = cluster 
@@ -31,7 +32,8 @@ class KubernetesClient(object):
     def _run_command_and_parse_yaml(self, cmd):
         return yaml.load(self._run_command(cmd))
 
-    def _namespace(self, ns):
+    @staticmethod
+    def _namespace(ns):
         return ['--namespace', ns] if ns != 'all' else ['--all-namespaces']
 
     def _load_from_cache_or_do(self, key, func):
@@ -49,7 +51,7 @@ class KubernetesClient(object):
 
     def get_entities(self, ns, entity):
         key = "%s.%s" % (ns, entity)
-        cb = lambda: self._get_entities(ns,entity)
+        cb = lambda: self._get_entities(ns, entity)
         return self._load_from_cache_or_do(key, cb)
 
     def get_object_in_format(self, ns, entity_type, object, format):
@@ -89,13 +91,13 @@ class KubernetesClient(object):
         payload = self._run_command_and_parse_yaml('get ns -o yaml'.split())
         if payload is None or 'items' not in payload:
             return []
-        return [ item['metadata']['name'] for item in payload['items']]
+        return [item['metadata']['name'] for item in payload['items']]
 
     def _get_entities(self, ns, entity):
         payload = self._run_command_and_parse_yaml(['get', entity, '-o', 'yaml'] + self._namespace(ns))
         if payload is None or 'items' not in payload:
             return []
-        return [ item['metadata']['name'] for item in payload['items']]
+        return [item['metadata']['name'] for item in payload['items']]
 
     def _get_object_in_format(self, ns, entity_type, object, format):
         return self._run_command(['get', entity_type, object, '-o', format] + self._namespace(ns))

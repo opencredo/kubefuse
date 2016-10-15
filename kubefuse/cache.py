@@ -1,6 +1,9 @@
 import logging
 import time
 
+logger = logging.getLogger(__name__)
+
+
 class ExpiringCache(object):
     def __init__(self, expire_in_seconds):
         self._cache = {}
@@ -11,7 +14,7 @@ class ExpiringCache(object):
         t = time.time() + self.EXPIRE_IN_SECONDS
         self._cache[key] = value
         self._timestamps[key] = t
-        logging.info("Add key '%s' to cache (expires %d)" % (key, t))
+        logger.info("Add key '%s' to cache (expires %d)" % (key, t))
 
     def get(self, key):
         if key not in self._timestamps:
@@ -19,7 +22,7 @@ class ExpiringCache(object):
         now = time.time()
         expires_at = self._timestamps[key]
         if now < expires_at:
-            logging.info("Retrieved '%s' from cache" % key)
+            logger.info("Retrieved '%s' from cache" % key)
             return self._cache[key]
         self.delete(key)
         return None

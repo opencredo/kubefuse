@@ -1,26 +1,24 @@
 #!/usr/bin/env python
 
 import logging
-import sys
-import os
-import errno
 import six
 import argparse
 import sys
 try:
     from fuse import FUSE, FuseOSError, Operations, LoggingMixIn
 except EnvironmentError:
-    print "It looks like the Fuse system library is missing."
-    print "Please install libfuse using your OS's package manager, or download OSXFUSE if you're on a Mac"
+    print("It looks like the Fuse system library is missing.")
+    print("Please install libfuse using your OS's package manager, or download OSXFUSE if you're on a Mac")
     sys.exit(1)
 
 
 from . import client
-from . import filesystem 
+from . import filesystem
+
 
 class KubeFuse(LoggingMixIn, Operations):
 
-    def __init__(self, mount, kubeconfig = None, cluster = None, context = None, user = None):
+    def __init__(self, mount, kubeconfig=None, cluster=None, context=None, user=None):
         self.client = client.KubernetesClient(kubeconfig, cluster, context, user)
         self.fs = filesystem.KubeFileSystem(self.client)
         self.fd = 0
@@ -58,23 +56,32 @@ class KubeFuse(LoggingMixIn, Operations):
 
 def parse_args():
     parser = argparse.ArgumentParser(description='A file system view for Kubernetes')
-    parser.add_argument('mountpoint', metavar='MOUNTPOINT', type=str, 
-        help='The directory to mount on')
-    parser.add_argument('--kubeconfig', dest='kubeconfig', 
-        help='Path to the kubeconfig file')
-    parser.add_argument('--cluster', dest='cluster', 
-        help='The name of the kubeconfig cluster to use')
-    parser.add_argument('--context', dest='context', 
-        help='The name of the kubeconfig context to use')
-    parser.add_argument('--user', dest='user', 
-        help='The name of the kubeconfig user to use')
+    parser.add_argument('mountpoint', metavar='MOUNTPOINT', type=str,
+                        help='The directory to mount on')
+    parser.add_argument('--kubeconfig', dest='kubeconfig',
+                        help='Path to the kubeconfig file')
+    parser.add_argument('--cluster', dest='cluster',
+                        help='The name of the kubeconfig cluster to use')
+    parser.add_argument('--context', dest='context',
+                        help='The name of the kubeconfig context to use')
+    parser.add_argument('--user', dest='user',
+                        help='The name of the kubeconfig user to use')
+    parser.add_argument('--verbose', '-v', action='count', dest='verbosity',
+                        default=0, help='Verbosity of program output')
     return parser.parse_args()
 
 def main():
     args = parse_args()
-    logging.basicConfig(level=logging.INFO)
-    fuse = FUSE(KubeFuse(args.mountpoint, args.kubeconfig, args.cluster, args.context),
-                    args.mountpoint, foreground=True)
+    if args.verbosity == 0:
+        logging.basicConfig(level=logging.WARNING)
+    elif args.verbosity == 1:
+        logging.basicConfig(level=logging.INFO)
+    elif args.verbosity == 2:
+        logging.basicConfig(level=logging.DEBUG)
+    else:
+        logging.basicConfig(level=0)
+    FUSE(KubeFuse(args.mountpoint, args.kubeconfig, args.cluster, args.context),
+         args.mountpoint, foreground=True)
 
 if __name__ == '__main__':
     main()
