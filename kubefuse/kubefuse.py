@@ -30,6 +30,12 @@ class KubeFuse(LoggingMixIn, Operations):
     def getattr(self, path, fh=None):
         return self.fs.getattr(path)
 
+    def rmdir(self, path):
+        return self.fs.rmdir(path)
+
+    def unlink(self, path):
+        return self.fs.unlink(path)
+
     def open(self, path, fh):
         self.fd += 1
         self.fs.open(path, fh)

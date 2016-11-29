@@ -28,5 +28,8 @@ class ExpiringCache(object):
         return None
 
     def delete(self, key):
-        del(self._timestamps[key])
-        del(self._cache[key])
+        try:
+            del(self._timestamps[key])
+            del(self._cache[key])
+        except KeyError:
+            pass

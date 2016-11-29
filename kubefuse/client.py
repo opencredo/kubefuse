@@ -1,3 +1,4 @@
+import logging
 import subprocess
 import yaml
 import tempfile
@@ -5,6 +6,8 @@ import six
 
 from . import cache
 
+
+LOGGER = logging.getLogger(__name__)
 
 class KubernetesClient(object):
     def __init__(self, kubeconfig=None, cluster=None, context=None, user=None):
@@ -43,16 +46,30 @@ class KubernetesClient(object):
         result = func()
         self._cache.set(key, result)
         return result
-        
+
     def get_namespaces(self):
         key = "namespaces"
         cb = self._get_namespaces
         return self._load_from_cache_or_do(key, cb)
 
+    def delete_namespace(self, namespace):
+        LOGGER.info(self._run_command(('delete namespace ' + namespace).split()))
+        self._cache.delete('namespaces')
+
     def get_entities(self, ns, entity):
         key = "%s.%s" % (ns, entity)
         cb = lambda: self._get_entities(ns, entity)
         return self._load_from_cache_or_do(key, cb)
+
+    def delete_entities(self, ns, entity_type):
+        key = "%s.%s" % (ns, entity_type)
+        LOGGER.info(self._run_command(("delete %s --all " % entity_type).split() + self._namespace(ns)))
+        self._cache.delete(key)
+
+    def delete_entity(self, ns, entity_type, object_name):
+        key = "%s.%s" % (ns, entity_type)
+        LOGGER.info(self._run_command(("delete %s %s " % (entity_type, object_name)).split() + self._namespace(ns)))
+        self._cache.delete(key)
 
     def get_object_in_format(self, ns, entity_type, object, format):
         key = "%s.%s.%s.%s" % (ns, entity_type, object, format)
