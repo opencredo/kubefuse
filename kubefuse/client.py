@@ -3,7 +3,7 @@ import yaml
 import tempfile
 import six
 
-from . import cache
+import cache
 
 
 class KubernetesClient(object):

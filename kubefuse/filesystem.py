@@ -3,7 +3,7 @@ from time import time
 import logging
 import errno
 from fuse import FuseOSError
-from . import path 
+import path 
 KubePath = path.KubePath
 
 logger = logging.getLogger(__name__)

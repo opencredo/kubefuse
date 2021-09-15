@@ -12,8 +12,8 @@ except EnvironmentError:
     sys.exit(1)
 
 
-from . import client
-from . import filesystem
+import client
+import filesystem
 
 
 class KubeFuse(LoggingMixIn, Operations):
