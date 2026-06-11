@@ -1,6 +1,9 @@
 KubeFuse
 ========
 
+> [!NOTE]
+> This repo has been archived and is no longer under development. OpenCredo is now part of [Trifork](https://github.com/trifork).
+
 ![KubeFuse](logo.png)
 
 Kubernetes as a Filesystem [![Build Status](https://travis-ci.org/opencredo/kubefuse.svg?branch=master)](https://travis-ci.org/opencredo/kubefuse)
